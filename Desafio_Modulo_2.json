@@ -1,0 +1,782 @@
+{
+  "name": "My workflow (May 30 at 13:02:16)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Envio do arquivo",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Anexe o arquivo",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -544,
+        48
+      ],
+      "id": "416f064d-fccc-4594-9f88-4dbf602268e9",
+      "name": "On form submission",
+      "webhookId": "8337f644-e76e-4e1f-b35e-119ee0f3d4ac"
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "Anexe_o_arquivo",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        48
+      ],
+      "id": "f9df03c8-52b4-4d82-8d74-c7f329dc84c7",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  idade: $json[\"1.a_idade\"],\n  faixa_idade: $json[\"1.a.1_faixa_idade\"],\n  genero: $json[\"1.b_genero\"],\n  cor_raca_etnia: $json[\"1.c_cor/raca/etnia\"],\n  pcd: $json[\"1.d_pcd\"]\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        -272
+      ],
+      "id": "4ba034f6-0889-48f5-96a3-256fe30ecfd1",
+      "name": "Sepando colunas para a dim_demografica"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  uf: $json[\"1.i.1_uf_onde_mora\"] || \"NI\",\n  regiao: $json[\"1.i.2_regiao_onde_mora\"] || \"Não Informado\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        -64
+      ],
+      "id": "1c60beda-9114-45e3-b211-ac5eb40af385",
+      "name": "Separando colunas para a dim_localizacao"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "dim_demografica",
+          "mode": "list",
+          "cachedResultName": "dim_demografica"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idade": "={{ $json.idade }}",
+            "faixa_idade": "={{ $json.faixa_idade }}",
+            "genero": "={{ $json.genero }}",
+            "cor_raca_etnia": "={{ $json.cor_raca_etnia }}",
+            "pcd": "={{ $json.pcd }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sk_demografica",
+              "displayName": "sk_demografica",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "idade",
+              "displayName": "idade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "faixa_idade",
+              "displayName": "faixa_idade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "genero",
+              "displayName": "genero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cor_raca_etnia",
+              "displayName": "cor_raca_etnia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pcd",
+              "displayName": "pcd",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        496,
+        -272
+      ],
+      "id": "3953558b-a125-46c0-b6d9-13ed367e2357",
+      "name": "Ingestão de dados - dim_demográfica",
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "dim_localizacao",
+          "mode": "list",
+          "cachedResultName": "dim_localizacao"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "uf": "={{ $json.uf }}",
+            "regiao": "={{ $json.regiao }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sk_localizacao",
+              "displayName": "sk_localizacao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "uf",
+              "displayName": "uf",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "regiao",
+              "displayName": "regiao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        496,
+        -64
+      ],
+      "id": "ddc9afe1-4ce5-49c4-b626-66e724ff158a",
+      "name": "Ingestão de dados - dim_localizacao",
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  nivel: $json[\"2.g_nivel\"] || \"Não Informado\",\n  faixa_salarial: $json[\"2.h_faixa_salarial\"] || \"Não Informada\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        144
+      ],
+      "id": "0de52c57-4c40-4893-9537-78b196301dde",
+      "name": "Separando colunas para a dim_carreira"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  idade: $json[\"1.a_idade\"],\n  faixa_idade: $json[\"1.a.1_faixa_idade\"],\n  genero: $json[\"1.b_genero\"],\n  cor_raca_etnia: $json[\"1.c_cor/raca/etnia\"],\n  pcd: $json[\"1.d_pcd\"],\n  uf: $json[\"1.i.1_uf_onde_mora\"] || \"NI\",\n  regiao: $json[\"1.i.2_regiao_onde_mora\"] || \"Não Informado\",\n  nivel: $json[\"2.g_nivel\"] || \"Não Informado\",\n  faixa_salarial: $json[\"2.h_faixa_salarial\"] || \"Não Informada\",\n  oportunidades_emprego: $json[\"1.f.1_Quantidade de oportunidades de emprego/vagas recebidas\"],\n  aprovacao_processos: $json[\"1.f.3_Aprovação em processos seletivos/entrevistas\"],\n  velocidade_progressao: $json[\"1.f.5_Velocidade de progressão de carreira\"],\n  nivel_estresse_trabalho: $json[\"1.f.6_Nível de cobrança no trabalho/Stress no trabalho\"],\n  token: $json['0.a_token']\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        544
+      ],
+      "id": "3b8f7ad1-5905-4d2d-8a60-c7a64cb1c9dd",
+      "name": "Separando colunas para a fato_resposta_pesquisa"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "dim_carreira",
+          "mode": "list",
+          "cachedResultName": "dim_carreira"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nivel": "={{ $json.nivel }}",
+            "faixa_salarial": "={{ $json.faixa_salarial }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sk_carreira",
+              "displayName": "sk_carreira",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "nivel",
+              "displayName": "nivel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "faixa_salarial",
+              "displayName": "faixa_salarial",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        496,
+        144
+      ],
+      "id": "7f456754-bfda-4c67-a7af-3b76966cdf3d",
+      "name": "Ingestão de dados - dim_carreira",
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        256,
+        -272
+      ],
+      "id": "a16c3b0d-7107-4358-afc1-24c99ae8fbcb",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        256,
+        -64
+      ],
+      "id": "ecf75b83-6f60-4ece-a63e-bc19b62e87a1",
+      "name": "Remove Duplicates1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        256,
+        144
+      ],
+      "id": "674b9557-71a1-4f07-a9f4-529e7359b2f5",
+      "name": "Remove Duplicates2"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "fato_resposta_pesquisa",
+          "mode": "list",
+          "cachedResultName": "fato_resposta_pesquisa"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fk_demografica": "={{ $json.sk_demografica }}",
+            "fk_localizacao": "={{ $json.sk_localizacao }}",
+            "fk_carreira": "={{ $json.sk_carreira }}",
+            "oportunidades_emprego": "={{ $json.oportunidades_emprego }}",
+            "aprovacao_processos": "={{ $json.aprovacao_processos }}",
+            "velocidade_progressao": "={{ $json.velocidade_progressao }}",
+            "nivel_estresse_trabalho": "={{ $json.nivel_estresse_trabalho }}",
+            "token": "={{ $json.token }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id_fato",
+              "displayName": "id_fato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "token",
+              "displayName": "token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fk_demografica",
+              "displayName": "fk_demografica",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fk_localizacao",
+              "displayName": "fk_localizacao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fk_carreira",
+              "displayName": "fk_carreira",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "oportunidades_emprego",
+              "displayName": "oportunidades_emprego",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aprovacao_processos",
+              "displayName": "aprovacao_processos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "velocidade_progressao",
+              "displayName": "velocidade_progressao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nivel_estresse_trabalho",
+              "displayName": "nivel_estresse_trabalho",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        944,
+        352
+      ],
+      "id": "cb3cfffa-d493-4fc6-95a4-513039e2961c",
+      "name": "Ingestão de dados - fato_resposta_pesquisa",
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sk_demografica\nFROM dim_demografica\nWHERE idade = '{{$json.idade}}'\n  AND faixa_idade = '{{$json.faixa_idade}}'\n  AND genero = '{{$json.genero}}'\n  AND cor_raca_etnia = '{{$json.cor_raca_etnia}}'\n  AND pcd = '{{$json.pcd}}'\nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        352
+      ],
+      "id": "f9823ebe-e194-4568-b13c-bb7e761b88e1",
+      "name": "Lookup - FK  dim_demografica",
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sk_localizacao\nFROM dim_localizacao\nWHERE uf = '{{ $json.uf }}'\nAND regiao = '{{ $json.regiao }}'\nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        544
+      ],
+      "id": "3c982bb1-f190-4226-8c6c-170040161d22",
+      "name": "Lookup - FK dim_localizacao",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sk_carreira\nFROM dim_carreira\nWHERE nivel = '{{ $json.nivel }}'\nAND faixa_salarial = '{{ $json.faixa_salarial }}'\nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        736
+      ],
+      "id": "316d9108-5b8a-45f2-8bc6-ed8c43b32d5a",
+      "name": "Lookup - FK dim_carreira",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "Xp6nrgdZky1IVD0R",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        656,
+        368
+      ],
+      "id": "27e33bb1-38e2-494f-a33e-1d81d2b61d80",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Sepando colunas para a dim_demografica",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Separando colunas para a dim_localizacao",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Separando colunas para a dim_carreira",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Separando colunas para a fato_resposta_pesquisa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sepando colunas para a dim_demografica": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separando colunas para a dim_localizacao": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separando colunas para a dim_carreira": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separando colunas para a fato_resposta_pesquisa": {
+      "main": [
+        [
+          {
+            "node": "Lookup - FK  dim_demografica",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lookup - FK dim_localizacao",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lookup - FK dim_carreira",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Ingestão de dados - dim_demográfica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Ingestão de dados - dim_localizacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates2": {
+      "main": [
+        [
+          {
+            "node": "Ingestão de dados - dim_carreira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup - FK  dim_demografica": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup - FK dim_localizacao": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Lookup - FK dim_carreira": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Ingestão de dados - fato_resposta_pesquisa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "66c08ccc-b795-4b14-8a65-edc9ea0c1156",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1500dca45ed54b168e19a611b38e907e279756a7cc1c5ee2a25b46f8d89e0931"
+  },
+  "id": "mxJI5dBTGNc2UCRg",
+  "tags": []
+}
